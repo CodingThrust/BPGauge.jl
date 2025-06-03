@@ -1,0 +1,3 @@
+[deps]
+BPGauge = "1c4bdfd3-3b3e-42fc-86f5-70ab4d610eac"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
