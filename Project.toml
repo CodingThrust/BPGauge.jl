@@ -3,7 +3,17 @@ uuid = "1c4bdfd3-3b3e-42fc-86f5-70ab4d610eac"
 authors = ["ArrogantGao <xz.gao@connect.ust.hk> and contributors"]
 version = "1.0.0-DEV"
 
+[deps]
+Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+ITensorNetworks = "2919e153-833c-4bdc-8836-1ea460a35fc7"
+ITensors = "9136182c-28ba-11e9-034c-db9fb085ebd5"
+TensorOperations = "6aa20fa7-93e2-5fca-9bc0-fbd0db3c71a2"
+
 [compat]
+Graphs = "1.13.0"
+ITensorNetworks = "0.13.11"
+ITensors = "0.9.6"
+TensorOperations = "5.2.0"
 julia = "1.6.7"
 
 [extras]
