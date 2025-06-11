@@ -1,19 +1,19 @@
+
 Such report is summary targeted for the Belief Propagation and Single Update algorithm in [quantum evolution dynamics training camp](https://github.com/CodingThrust/QuantumEvolutionTrainingCamp), which is a new proposed algorithm for 2D quantum system dynamics. This report is structured as 2D system dynamics and its difficulties, 2D tensor network algorithm (especially PEPS), system analyzing for Rydberg atoms array and kicked Ising dynamics, finally our BP algorithm and technical details.
 
 # 2D system dynamics
 
-When we deal with the dynamics of two dimensional or higher dimension, the algorithms have to overcome the obstacles such as: **degrees of freedom increasing exponentially**, **more quick growth of entanglement entropy**, and **computational accuracy and efficiency**. Several algorithms are listed below for comparing.
+Usually in quantum many body physics, people tends to discuss observables such as energy, magnetization these static (equilibrium) quantity, rather than their dynamics or how they change with time (the non-equilibrium quantity). However, the development of quantum simulation and numerical methods makes people realize that in dynamics, quantum matter could exhibit more phases during the evolution, such as Eigenstates Thermalization Hypothesis (ETH), Many body localization (MBL), discrete time crystal quantum many body scar and various dynamical phase transition, in which dynamics is deeply related to how statistics mechanics emerge from quantum mechanics. On the other hand, in the context of quantum algorithm and quantum circuit which is equivalent to many body dynamics. We could analyze the complexity of circuit and algorithm to be whether polynomial or not to determine the difficulty to do dynamics. Theoretical methods to do dynamics contain random circuits, dual-unitary, clifford circuits (basically free fermions). While turning to numerical methods, especially dealing with the dynamics of two dimensional or higher dimension, the algorithms have to overcome the obstacles such as: **degrees of freedom increasing exponentially**, **complex geometry and property**, **more quick growth of entanglement entropy**, and **computational accuracy and efficiency**. The main reason of dynamics difficulty lies at that the initial state will nearly visit each part of Hilbert space (real time evolution, imaginary part at exp), in contrast ground property or finite temperature property (imaginary time evolution, real part at exp). Several algorithms are listed below for comparing. 
 
 ## *Exact Diagonalization, ED* $\sim O(D^3)$
    
-The principle is basically $|\psi(t)\rangle=e^{−iHt}|\psi(0)\rangle$, no matter directly diagonalizing the Hamiltonian, or do Krylov dynamics, the Hilbert space dimension scales exponentially $dim(H)\sim 2^N$. So the maximal matirx size is fixed due to the classical capacity. But the former is the most accurate numerical methods and you can obtain all information of system. As long as you can obtain eigenstates despite its $O(D^3)$ complexity, you can do **exact dynamics for any long time**. So it can be used as benchmark for other outcome.
-
-More complex geometry and property will reduce more the dimension of system by introducing symmetry (translation, rotation, U(1) symmetry, etc.). For example in [^QMBSPRB] we can completely diagonalize 1D PXP model at size $L=32, D=77436$, then enlarging to $L=36, D=467160$ to extract a subset of eigenstates by shift invert (then do Krylov dynamics). In 2D, people can easily compute $6 \times 6$ square lattice, then nearly enlarge by sparse matrix to $7 \times 7$. For other models, people have been scales up to[^Leshouches] 40 spins square lattice, 39 sites triangular, 42 sites Honeycomb lattice, 48 sites kagome lattice[^LauchliKagome] and 64 spins or more in elevated magnetization sectors. This can be visualize below:
+The principle is basically $|\psi(t)\rangle=e^{−iHt}|\psi(0)\rangle$, no matter directly diagonalizing the Hamiltonian, or do Krylov dynamics, the generic Hilbert space dimension scales exponentially $dim(H)\sim 2^N$. More complex geometry and property will reduce more the dimension of system by choosing symmetry sector (translation, rotation, U(1) symmetry, etc.) or ruling out the constrained basis (Fibonacci chain, hard core square lattice). For example in [^QMBSPRB] we can completely diagonalize 1D PXP model at size $L=32, D=77436$, then enlarging to $L=36, D=467160$ to extract high energy eigenstates by shift invert. In 2D, people can easily compute $6 \times 6$[^Hsiehscar20][^Stabscar] square lattice, then nearly enlarge by sparse matrix to $7 \times 7$. For other models, people have been scales up to[^Leshouches] 40 spins square lattice, 39 sites triangular, 42 sites Honeycomb lattice, 48 sites kagome lattice[^LauchliKagome] and 64 spins or more in elevated magnetization sectors. This procedure can be visualized below:
 
 $D=2^N \xrightarrow{\text{Constraint}} \alpha^N  \xrightarrow{\text{Particle Number}}\alpha^{N-1}/k\xrightarrow{\text{translation}}\alpha^{N-1}/kN\xrightarrow{\text{spin flip/inversion}}\alpha^{N-2}/kN$.
 
-where $\alpha \sim 1.618, 1.502$ for Fibonacci chain, hard core square lattice, $k \sim 5$. So for fully ED, $D \sim 10^6$. When doing dynamics, Krylov subspace $K_m​=\text{span}\{v,Hv,H^2v,⋯,H^{m−1}v\}$ is usually incorporated, which can scale up to $N=32$ even without anyon symmetry ($D \sim 10^{10}, m \sim 10^4$,  as long as the locality of interaction ensuring sparse matrix). In such basis, the Its complexity decreases to $O(m^2D)$
+where $\alpha \sim 1.618, 1.502$. For Fibonacci chain, hard core square lattice, $k \sim 7$. 
 
+So the maximal system size we can compute depends on the maximal matirx size, which is fixed on the classical devices capacity. Fully ED, $D \sim 10^6$, is the most accurate numerical methods and you can obtain all information of system. As long as you can obtain eigenstates despite its $O(D^3)$ complexity, you can do **exact dynamics for any long time**. So it can be used as benchmark for other methods.When doing dynamics, Krylov subspace $K_m​=\text{span}\{v,Hv,H^2v,⋯,H^{m−1}v\}$ is usually incorporated, which can scale up to $N=32$ even without anyon symmetry ($D \sim 10^{10}, m \sim 10^4$,  as long as the locality of interaction ensuring sparse matrix). In such basis, the Its complexity decreases to $O(m^2D)$
 
 ## *Tensor Networks, TN*
 
@@ -22,31 +22,7 @@ where $\alpha \sim 1.618, 1.502$ for Fibonacci chain, hard core square lattice, 
 
 ## Others 
 ### *Quantum Monte Carlo, QMC* [^Dowling]
-utilizing $⟨O⟩=Tr[e^{−βH}O]$， Path integral Monte Carlo: for finite temperature dynamics, inchworm monte carlo. However, when it comes to real-time calculations (i.e. dynamics), path integral QMC methods become difficult because of sign or phase
-problems. The stochastic-gauge representation is a method of mapping the equation of motion for the quantum mechanical density operator onto a set of equivalent stochastic
-differential equations. One of the stochastic variables is termed the “weight”, and
-its magnitude is related to the importance of the stochastic trajectory. We investigate the use of Monte Carlo algorithms to improve the sampling of the weighted
-trajectories and thus reduce sampling error in a simulation of quantum dynamics. The method can be applied to calculations in real time, as well as imaginary
-time for which Monte Carlo algorithms are more-commonly used. The method is
-applicable when the weight is guaranteed to be real, and we demonstrate how to
-ensure this is the case. Examples are given for the anharmonic oscillator, where
-large improvements over stochastic sampling are observe
-
-An alternative approach is provided by phase-space representations [8–10],
-which can be used to map quantum dynamics to a set of equivalent stochastic
-differential equations. The number of phase-phase equations scale polynomially with the number of modes, allowing computationally tractable simulations. Phase-space methods have proved useful in the past for simulating quantum dynamics, particularly in the field of quantum optics [11–13] A natural
-extension of these techniques is to the field of degenerate quantum gases, where
-the interacting particles are atoms or molecules rather than photons [14,15].
-Recently it has been discovered that Fermi gases can be treated with related
-techniques [16,17].
-The mapping of a quantum problem to phase-space equations is far from
-unique. This nonuniqueness can be exploited to tailor the form the stochastic
-equation without affecting the physical, ensemble result. The different choices
-correspond to different “stochastic gauges”. In this paper, we use this freedom to generate stochastic equations with real weights, which we then sample
-with Monte Carlo techniques. The real weights avoid the sign or phase problem encountered in other QMC approaches to quantum dynamics. Since the
-stochastic gauge method is a relatively new technique, we choose to focus here
-on an especially simple case with known exact solutions, in order to clarify
-the problems and advantages of this real weight approach.
+The main ideas is utilizing $⟨O⟩=Tr[e^{−βH}O], ⟨O(t)⟩=Tr[e^{−iHt}O]$, usual containing Path integral Monte Carlo (PIMC), inchworm monte carlo. They are powerful for finite temperature dynamics (i.e. imaginary time dynamics). However, when it comes to real-time dynamics, path integral QMC methods become difficult because of the dynamical sign or phase problems, with sign problem of fermions. There's a phase-space method called the stochastic-gauge representation, which maps the equation of motion for the quantum mechanical density operator onto a set of equivalent stochastic differential equations. QMC 
 
 ### Neural network quantum state（NQS）：
 variational optimizing the wavefunction parameters by NN $\psi_{\theta}​(s_1​, \cdots,s_N​)$ to $min_{\theta}​||i\partial_t ​\psi−H\psi||$.
@@ -65,11 +41,11 @@ matrix, imaginary time evolution to obtain thermal density matrix
   
 ## Rydberg atoms array 
 In 2D, people usually choose[^Hsiehscar20]
-
+  
 $$
 H = \sum_{i=1}^N X_i (\Pi_{|i-j|=1} P_j)
 $$
-## kicked Ising dynamics
+## Kicked Ising dynamics
 
 # BP algorithm 
 
@@ -100,3 +76,4 @@ Supplemental Material](https://arxiv.org/pdf/1911.04882), which maybe helpful?
 [^Dowling]: Monte Carlo techniques for real-time
 quantum dynamics https://arxiv.org/pdf/quant-ph/0507003
 [^Hsiehscar20]: Quantum many-body scar states in two-dimensional Rydberg atom arrays https://journals.aps.org/prb/pdf/10.1103/PhysRevB.101.220304
+[^Stabscar]: Stabilizing two-dimensional quantum scars by deformation and synchronization https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.2.022065
