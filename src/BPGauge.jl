@@ -15,5 +15,6 @@ include("rydberg.jl")
 
 # bp on the tensor network ansatz
 include("bp.jl")
+include("gauge.jl")
 
 end
