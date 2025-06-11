@@ -1,5 +1,5 @@
 
-function generate_it(inds,elt,bd)
+function generate_zero_itensor(inds,elt,bd)
     l = length(inds)
     it = zeros(elt,2,fill(bd,l-1)...)
     it[1] = one(elt)
@@ -15,10 +15,9 @@ function create_zero_state(atoms, r, bd;elt=ComplexF64)
     ind_vec = Index{Int64}[]
     for i in 1:length(x.data_graph.vertex_data.values)
         v = x.data_graph.vertex_data.values[i]
-        x.data_graph.vertex_data.values[i] = generate_it(v.tensor.inds,elt,bd)
+        x.data_graph.vertex_data.values[i] = generate_zero_itensor(v.tensor.inds,elt,bd)
         push!(ind_vec,v.tensor.inds[1])
     end
-
      
     return x, ind_vec,g
 end
