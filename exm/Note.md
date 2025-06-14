@@ -1,18 +1,19 @@
 
 Such report is summary targeted for the Belief Propagation and Single Update algorithm in [quantum evolution dynamics training camp](https://github.com/CodingThrust/QuantumEvolutionTrainingCamp), which is a new proposed algorithm for 2D quantum system dynamics. This report is structured as 2D system dynamics and its difficulties, 2D tensor network algorithm (especially PEPS), system analyzing for Rydberg atoms array and kicked Ising dynamics, finally our BP algorithm and technical details.
-
-# 2D system dynamics
+v# 2D system dynamics
 
 Usually in quantum many body physics, people tends to discuss observables such as energy, magnetization these static (equilibrium) quantity, rather than their dynamics or how they change with time (the non-equilibrium quantity). However, the development of quantum simulation and numerical methods makes people realize that in dynamics, quantum matter could exhibit more phases during the evolution, such as Eigenstates Thermalization Hypothesis (ETH), Many body localization (MBL), discrete time crystal quantum many body scar and various dynamical phase transition, in which dynamics is deeply related to how statistics mechanics emerge from quantum mechanics. On the other hand, in the context of quantum algorithm and quantum circuit which is equivalent to many body dynamics. We could analyze the complexity of circuit and algorithm to be whether polynomial or not to determine the difficulty to do dynamics. Theoretical methods to do dynamics contain random circuits, dual-unitary, clifford circuits (basically free fermions). While turning to numerical methods, especially dealing with the dynamics of two dimensional or higher dimension, the algorithms have to overcome the obstacles such as: **degrees of freedom increasing exponentially**, **complex geometry and property**, **more quick growth of entanglement entropy**, and **computational accuracy and efficiency**. The main reason of dynamics difficulty lies at that the initial state will nearly visit each part of Hilbert space (real time evolution, imaginary part at exp), in contrast ground property or finite temperature property (imaginary time evolution, real part at exp). Several algorithms are listed below for comparing. 
 
 ## *Exact Diagonalization, ED* $\sim O(D^3)$
-   
+
+### System size
 The principle is basically $|\psi(t)\rangle=e^{−iHt}|\psi(0)\rangle$, no matter directly diagonalizing the Hamiltonian, or do Krylov dynamics, the generic Hilbert space dimension scales exponentially $dim(H)\sim 2^N$. More complex geometry and property will reduce more the dimension of system by choosing symmetry sector (translation, rotation, U(1) symmetry, etc.) or ruling out the constrained basis (Fibonacci chain, hard core square lattice). For example in [^QMBSPRB] we can completely diagonalize 1D PXP model at size $L=32, D=77436$, then enlarging to $L=36, D=467160$ to extract high energy eigenstates by shift invert. In 2D, people can easily compute $6 \times 6$[^Hsiehscar20][^Stabscar] square lattice, then nearly enlarge by sparse matrix to $7 \times 7$. For other models, people have been scales up to[^Leshouches] 40 spins square lattice, 39 sites triangular, 42 sites Honeycomb lattice, 48 sites kagome lattice[^LauchliKagome] and 64 spins or more in elevated magnetization sectors. This procedure can be visualized below:
 
 $D=2^N \xrightarrow{\text{Constraint}} \alpha^N  \xrightarrow{\text{Particle Number}}\alpha^{N-1}/k\xrightarrow{\text{translation}}\alpha^{N-1}/kN\xrightarrow{\text{spin flip/inversion}}\alpha^{N-2}/kN$.
 
 where $\alpha \sim 1.618, 1.502$. For Fibonacci chain, hard core square lattice, $k \sim 7$. 
 
+### Time scale
 So the maximal system size we can compute depends on the maximal matirx size, which is fixed on the classical devices capacity. Fully ED, $D \sim 10^6$, is the most accurate numerical methods and you can obtain all information of system. As long as you can obtain eigenstates despite its $O(D^3)$ complexity, you can do **exact dynamics for any long time**. So it can be used as benchmark for other methods.When doing dynamics, Krylov subspace $K_m​=\text{span}\{v,Hv,H^2v,⋯,H^{m−1}v\}$ is usually incorporated, which can scale up to $N=32$ even without anyon symmetry ($D \sim 10^{10}, m \sim 10^4$,  as long as the locality of interaction ensuring sparse matrix). In such basis, the Its complexity decreases to $O(m^2D)$
 
 ## *Tensor Networks, TN*
@@ -67,12 +68,22 @@ Can enlarge to $N=300$
 ### Time scale
 But only precise to time $t \sim v/L$
 ## Others 
-### *Quantum Monte Carlo, QMC* [^Dowling]
-The main ideas is utilizing $⟨O⟩=Tr[e^{−βH}O], ⟨O(t)⟩=Tr[e^{−iHt}O]$, usual containing Path integral Monte Carlo (PIMC), inchworm monte carlo. They are powerful for finite temperature dynamics (i.e. imaginary time dynamics). However, when it comes to real-time dynamics, path integral QMC methods become difficult because of the dynamical sign or phase problems, with sign problem of fermions. There's a phase-space method called the stochastic-gauge representation, which maps the equation of motion for the quantum mechanical density operator onto a set of equivalent stochastic differential equations. QMC 
+### *Quantum Monte Carlo, QMC* 
+
+### System size
+
+The main ideas is utilizing $⟨O⟩=Tr[e^{−βH}O], ⟨O(t)⟩=Tr[e^{−iHt}O]$, usual containing Path integral Monte Carlo (PIMC), inchworm monte carlo. They are powerful for finite temperature dynamics (i.e. imaginary time dynamics), even can scales up to very large system $N \sim 10^5$ system. 
+
+### Time scale
+However, when it comes to real-time dynamics, path integral QMC methods become difficult because of the dynamical sign (complex phase problems), accompanied with sign problem of fermions. These phase factors produce violent oscillations in the path integral. The contributions of different paths cancel each other out with $e^{αt} (α>0)$ growing statistical error. Therefore, only very short time scales can be calculated in QMC ($t \sim 1/\alpha$), usually much smaller than the time of physical interest, that's why few people use it to compute dynamics.
+
+There's a phase-space method called the stochastic-gauge representation[^Dowling], which maps the equation of motion for the quantum mechanical density operator onto a set of equivalent stochastic differential equations.  Also we can use inchworm monte carlo algorithm, an improved Monte Carlo update scheme. The sign problem can be alleviated in some cases by clever update rules.
 
 ### Neural network quantum state（NQS）：
 variational optimizing the wavefunction parameters by NN $\psi_{\theta}​(s_1​, \cdots,s_N​)$ to $min_{\theta}​||i\partial_t ​\psi−H\psi||$.
 
+All above is visualized as:
+<img width="299" alt="Image" src="https://github.com/user-attachments/assets/d4cd9646-f6fc-4dab-b3b2-2e1c9b3a5ee4" />
 
 # 2D tensor network algorithm (especially PEPS)
 
@@ -110,9 +121,7 @@ The method in ITensorNetwork.jl only support two site gate, how to promote to PX
 Here has a algorithm I take from [Fine-Grained Tensor Network Methods
 Supplemental Material](https://arxiv.org/pdf/1911.04882), which maybe helpful?
 
-- [Tensor networks contraction and the belief propagation algorithm](https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.3.023073), seeming the first paper put up with BP and SU.
-
-- [Universal tensor-network algorithm for any infinite lattice](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.99.195105), using SU, which has many fruitful outcome as benchmark, can also see its appendix, talking about the gauge fixing.
+- [Tensor networks contraction and the belief propagation algorithm](https://journals.aps.org/prresearch/pdf/10.1103/PhysRevResearch.3.023073), seeming the first paper put up with BP and SU.- [Universal tensor-network algorithm for any infinite lattice](https://journals.aps.org/prb/pdf/10.1103/PhysRevB.99.195105), using SU, which has many fruitful outcome as benchmark, can also see its appendix, talking about the gauge fixing.
 
 <img width="872" alt="Image" src="https://github.com/user-attachments/assets/df2cf6ed-da28-4320-9f28-335b383a5cbb" />
 
