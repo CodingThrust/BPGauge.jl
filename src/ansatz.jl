@@ -1,23 +1,24 @@
 # the tensor network ansatz, |ket> 
-struct TensorNetworkAnsatz{TA}
+struct TensorNetworkAnsatz{TA, TB}
     g::SimpleGraph{Int} # g is used to store the connections between the tensors
     site_tensors::Vector{TA} # the tensors are stored as vector of arrays, corresponding to vertices of the graph. The virtual bounds are in order of its neighbors, the last dimension is the open dimension
-    gauge_tensors::Vector{TA} # corresponding to edges of the graph, listed in the order of edges(g), and enforce e.src < e.dst
+    gauge_tensors::Vector{TB} # corresponding to edges of the graph, listed in the order of edges(g), and enforce e.src < e.dst, real valued diagonal matrices
     gauge_tensors_map::Dict{Tuple{Int, Int}, Int} # maps between the edge and the index of the gauge tensor
 
-    function TensorNetworkAnsatz(g::SimpleGraph{Int}, d_virtual::Int, d_open::Int)
-        TA = Array{ComplexF64}
+    function TensorNetworkAnsatz(g::SimpleGraph{Int}, d_virtual::Int, d_open::Int; type::Type = Float64)
+        TA = Array{Complex{type}}
+        TB = Array{type}
 
         site_tensors = Vector{TA}()
-        gauge_tensors = Vector{TA}()
+        gauge_tensors = Vector{TB}()
 
         for v in vertices(g)
-            t = zeros(ComplexF64, [d_virtual for _ in 1:length(neighbors(g, v))]..., d_open)
+            t = zeros(Complex{type}, [d_virtual for _ in 1:length(neighbors(g, v))]..., d_open)
             push!(site_tensors, t)
         end
 
         for e in edges(g)
-            t = (one(ComplexF64) * I)(d_virtual)
+            t = (one(type) * I)(d_virtual)
             push!(gauge_tensors, t)
         end
 
@@ -27,13 +28,13 @@ struct TensorNetworkAnsatz{TA}
             map[(src, dst)] = i
         end
 
-        new{Array{ComplexF64}}(g, site_tensors, gauge_tensors, map)
+        new{TA, TB}(g, site_tensors, gauge_tensors, map)
     end
 end
 
-Base.show(io::IO, ansatz::TensorNetworkAnsatz{TA}) where {TA} = print(io, "TensorNetworkAnsatz{$(TA)} with $(nv(ansatz.g)) sites and $(ne(ansatz.g)) edges")
+Base.show(io::IO, ansatz::TensorNetworkAnsatz{TA, TB}) where {TA, TB} = print(io, "TensorNetworkAnsatz{$(TA), $(TB)} with $(nv(ansatz.g)) sites and $(ne(ansatz.g)) edges")
 
-function inner_product(bra::TensorNetworkAnsatz{TA}, ket::TensorNetworkAnsatz{TA}; optimizer = GreedyMethod()) where {TA}
+function inner_product(bra::TensorNetworkAnsatz{TA, TB}, ket::TensorNetworkAnsatz{TA}; optimizer = GreedyMethod()) where {TA, TB}
     @assert bra.g == ket.g
 
     # 1:nv(g) are the indices of open indices
