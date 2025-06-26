@@ -17,9 +17,55 @@ So the maximal system size we can compute depends on the maximal matirx size, wh
 
 ## *Tensor Networks, TN*
 
-(a) In one dimension, MPS (or to see)
-(b) Projected entangled pairs state（PEPS）Unlike ED prefer PBC, loop structure will fail due to circle.
+Usual tensor network structure such as
+- In one dimension, MPS
+- In 2D, Projected entangled pairs state（PEPS）Unlike ED prefer PBC, loop structure will fail due to gauging problem.
 
+Here we focus on PEPS, whether we want to find the best (ground) state:
+1. iterative optimization of individual tensors (energy minimization)
+2. imaginary time evolution
+
+or do dynamics (real time evolution), we will always encounter:
+
+**Problems:** contracting the PEPS, no matter how we contract, we will get intermediate tensors with $O(L)$ legs number of coefficients $D^{2L}$. Exponentially increasing with $L$! 
+
+## Controlled approximate contraction scheme
+Exact contraction of an PEPS is exponentially hard! So here are some schemes:
+
+1. MPS-MPO-based approaches
+   - SVD
+   - variational optimization
+   - zip-up algorithm
+2. Corner transfer matrix method (CTM) 
+   ‣Environment tensors account for infinite system around a bulk site
+   ‣ CTM: Compute environment in an iterative way
+   ‣ Accuracy can be systematically controlled with $\chi$
+3. TRG:
+   ★ Contract PEPS with periodic boundary conditions
+   ★ Finite or infinite systems
+   ★ Related schemes: SRG, HOTRG, HOSRG.
+
+## Single update:
+simple update (SVD)
+★ “local” update like in TEBD
+★ Cheap, but not optimal
+(e.g. overestimates magnetization
+in S=1/2 Heisenberg model)
+
+## full update
+Jordan et al, PRL 101 (2008)
+★ Take the full wave function into
+account for truncation
+★ optimal, but computationally more
+expensive
+★ Fast-full update [Phien et al, PRB 92 (2015)]
+
+## Cluster update Wang, Verstraete, arXiv:1110.4362 (2011)
+
+### System size
+Can enlarge to $N=300$
+### Time scale
+But only precise to time $t \sim v/L$
 ## Others 
 ### *Quantum Monte Carlo, QMC* [^Dowling]
 The main ideas is utilizing $⟨O⟩=Tr[e^{−βH}O], ⟨O(t)⟩=Tr[e^{−iHt}O]$, usual containing Path integral Monte Carlo (PIMC), inchworm monte carlo. They are powerful for finite temperature dynamics (i.e. imaginary time dynamics). However, when it comes to real-time dynamics, path integral QMC methods become difficult because of the dynamical sign or phase problems, with sign problem of fermions. There's a phase-space method called the stochastic-gauge representation, which maps the equation of motion for the quantum mechanical density operator onto a set of equivalent stochastic differential equations. QMC 
