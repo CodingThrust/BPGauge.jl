@@ -65,3 +65,65 @@ end
     @show real(expc).> 0.0
     @show expc
 end
+
+
+
+@testset "1D obc Ising" begin
+    unit = 3.0
+    r = 3.5
+    bd = 1
+    t_max = 1.5
+    dt = 0.01
+    maxdim = 10
+    lattice_size = (8,1)
+
+
+    lattice = SquareLattice()
+    atoms = map(x -> unit .* x, generate_sites(lattice, lattice_size...));
+    tn,ind_vec,g = create_zero_state(atoms,r, bd)
+    expc_vec = Float64[]
+    for t in dt:dt:t_max
+        tn = BPGauge.apply_ising_hamiltonian(dt,ind_vec,g,tn;maxdim)
+        expc = ITensorNetworks.expect(tn, "Sz"; alg="bp")
+        push!(expc_vec,real(sum(expc)/4))
+    end
+    expc = ITensorNetworks.expect(tn, "Sz"; alg="bp")
+    @show real(expc).> 0.0
+    @show expc
+
+    # using CairoMakie
+    # fig = Figure()
+    # ax = Axis(fig[1,1])
+    # lines!(ax, collect(dt:dt:t_max),expc_vec)
+    # fig
+end
+
+@testset "2D obc Ising" begin
+    unit = 3.0
+    r = 3.5
+    bd = 1
+    t_max = 10.0
+    dt = 0.05
+    maxdim = 20
+    lattice_size = (3,3)
+
+
+    lattice = SquareLattice()
+    atoms = map(x -> unit .* x, generate_sites(lattice, lattice_size...));
+    tn,ind_vec,g = create_zero_state(atoms,r, bd)
+    expc_vec = Float64[]
+    for t in dt:dt:t_max
+        tn = BPGauge.apply_ising_hamiltonian(dt,ind_vec,g,tn;maxdim,omega = 0.5)
+        expc = ITensorNetworks.expect(tn, "Sz"; alg="bp")
+        push!(expc_vec,real(sum(expc)/4.5))
+    end
+    expc = ITensorNetworks.expect(tn, "Sz"; alg="bp")
+    @show real(expc).> 0.0
+    @show expc
+
+    # using CairoMakie
+    # fig = Figure()
+    # ax = Axis(fig[1,1])
+    # lines!(ax, collect(dt:dt:t_max),expc_vec)
+    # fig
+end

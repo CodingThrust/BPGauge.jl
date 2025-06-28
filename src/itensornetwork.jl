@@ -68,3 +68,41 @@ function build_adiabatic_sweep(Ω_max::Float64, Δ_max::Float64, t_max::Float64,
     Δ = (Δ_max * (2 * t / t_max - 1))
     return Ω, Δ
 end
+
+
+function apply_ising_hamiltonian(dt,ind_vec,g,tn;elt=ComplexF64,maxdim = 20,omega = 1.0)
+    xop = [0 1;1 0]
+    xit = exp(im*dt*xop*omega)
+
+    zzop = zeros(elt,4,4)
+    zzop[1,1] = one(elt)
+    zzop[2,2] = -one(elt)
+    zzop[3,3] = -one(elt)
+    zzop[4,4] = one(elt)
+
+    zzit = reshape(exp(im*dt*zzop),2,2,2,2)
+
+    site_num = length(ind_vec)
+
+    it_vec = ITensor[]
+    for i in 1:site_num
+        it = ITensor(xit,ind_vec[i],prime(ind_vec[i]))
+        push!(it_vec,it)
+    end
+    tn = ITensorNetworks.apply(it_vec,tn;maxdim)
+
+    ψψ = norm_sqr_network(tn)
+    #Simple Belief Propagation Grouping
+    bp_cache = BeliefPropagationCache(ψψ, group(v -> v[1], vertices(ψψ)))
+    bp_cache = update(bp_cache; maxiter=20)
+
+    for edge in edges(g)
+        # @show tn.data_graph.vertex_data.values
+        it = ITensor(zzit,prime(ind_vec[edge.src]),prime(ind_vec[edge.dst]),ind_vec[edge.src],ind_vec[edge.dst])
+        envsSBP = environment(bp_cache, [(edge.src, "bra"), (edge.src, "ket"), (edge.dst, "bra"), (edge.dst, "ket")])
+
+        tn = apply(it,tn;maxdim,envs = envsSBP,normalize=true,print_fidelity_loss=true,envisposdef=true,)
+    end
+    # tn = ITensorNetworks.apply(it_vec,tn;maxdim = 10)
+    return tn
+end
