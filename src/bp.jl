@@ -9,14 +9,16 @@ struct BPState{TA}
     function BPState(ansatz::TensorNetworkAnsatz{TA, TB}) where {TA, TB}
         messages = Dict{Tuple{Int, Int}, TA}()
         TE = eltype(TA)
-        for e in edges(ansatz.g)
-            i = findfirst(x -> x == e.dst, neighbors(ansatz.g, e.src))
-            d_virtual = size(ansatz.site_tensors[src(e)])[i]
-            messages[(src(e), dst(e))] = ones(TE, d_virtual, d_virtual)
-            messages[(dst(e), src(e))] = ones(TE, d_virtual, d_virtual)
-            uniform!(messages[(src(e), dst(e))])
-            uniform!(messages[(dst(e), src(e))])
+
+        # initialize the messages from neighbors to sites
+        for dst in vertices(ansatz.g)
+            for (i, src) in enumerate(neighbors(ansatz.g, dst))
+                d_virtual = size(ansatz.site_tensors[dst])[i]
+                messages[(src, dst)] = ones(TE, d_virtual, d_virtual)
+                uniform!(messages[(src, dst)])
+            end
         end
+
         new{TA}(messages)
     end
 end

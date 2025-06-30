@@ -5,7 +5,8 @@
 function absorb!(ansatz::TensorNetworkAnsatz{TA, TB}) where {TA, TB}
     for e in edges(ansatz.g)
         s, d = minmax(e.src, e.dst)
-        sqrt_Gamma = sqrt.(ansatz.gauge_tensors[ansatz.gauge_tensors_map[(s, d)]])
+        Gamma = ansatz.gauge_tensors[ansatz.gauge_tensors_map[(s, d)]]
+        sqrt_Gamma = sqrt.(Gamma)
         
         id_open = nv(ansatz.g) + 1
         dd = id_open + 1
@@ -26,6 +27,8 @@ function absorb!(ansatz::TensorNetworkAnsatz{TA, TB}) where {TA, TB}
         d_xs = (ansatz.site_tensors[d], sqrt_Gamma)
         size_dict = OMEinsum.get_size_dict(d_ixs, d_xs)
         einsum!(d_ixs, d_iy, d_xs, ansatz.site_tensors[d], 1, 0, size_dict)
+
+        Gamma .= I(size(Gamma, 1))
     end
     nothing
 end

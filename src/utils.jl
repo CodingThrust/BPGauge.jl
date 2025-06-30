@@ -1,3 +1,25 @@
+# generating graphs
+function square_lattice(mx::Int, my::Int, p::Float64; seed::Int = 1234)
+    Random.seed!(seed)
+    n = Int(ceil(mx * my * p))
+    g = SimpleGraph(n)
+    positions = [(i, j) for i in 1:mx, j in 1:my]
+    shuffle!(positions)
+    positions = positions[1:n]
+    sort!(positions)
+    for (i, pos) in enumerate(positions)
+        mxi, myi = pos
+        for (dx, dy) in [(0, 1), (1, 0)]
+            mxj, myj = mxi + dx, myi + dy
+            if (mxj, myj) in positions
+                j = findfirst(x -> x == (mxj, myj), positions)
+                add_edge!(g, i, j)
+            end
+        end
+    end
+    return g
+end
+
 # codes about constructing the einsum expression
 
 function all_eins(g::SimpleGraph{Int}, count::Int)
@@ -56,7 +78,7 @@ function uniform!(t::AbstractArray)
     t ./= abs(sum(t))
 end
 
-# square_root of the message matrix M_12
+# square_root of the message matrix M_12 via eigen decomposition
 # note that the definition here is a little bit different from the one in the paper https://scipost.org/SciPostPhys.15.6.222
 # with eigen decomposition, M_12 = U * diagm(D) * adjoint(U) = SM_13 * SM_32
 # SM_13 = M_12^0.5 = U * sqrt(diagm(D)), SM_32 = M_12^(-0.5) = 1/sqrt(diagm(D)) * adjoint(U)
