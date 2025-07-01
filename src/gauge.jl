@@ -48,27 +48,27 @@ function apply_gauge!(ansatz::TensorNetworkAnsatz{TA, TB}, s::Int, d::Int, M_sd:
     sqrt_Mds, sqrt_Mds_inv = square_root(M_ds)
 
     # the eigen decomposition is only correct when the message matrix is positive definite
-    @show ein"ji, kj -> ik"(sqrt_Msd_inv, sqrt_Msd) ≈ I(size(M_sd, 1))
-    @show ein"kl, lm -> km"(sqrt_Mds, sqrt_Mds_inv) ≈ I(size(M_sd, 1))
-    @show ein"ji, kj, kl, lm -> im"(sqrt_Msd_inv, sqrt_Msd, sqrt_Mds, sqrt_Mds_inv) ≈ I(size(M_sd, 1))
+    # @show ein"ji, kj -> ik"(sqrt_Msd_inv, sqrt_Msd) ≈ I(size(M_sd, 1))
+    # @show ein"kl, lm -> km"(sqrt_Mds, sqrt_Mds_inv) ≈ I(size(M_sd, 1))
+    # @show ein"ji, kj, kl, lm -> im"(sqrt_Msd_inv, sqrt_Msd, sqrt_Mds, sqrt_Mds_inv) ≈ I(size(M_sd, 1))
 
     # generate the new gauge tensor
     M_mid = ein"kj, kl -> jl"(sqrt_Msd, sqrt_Mds)
 
-    @show ein"ji, jl, lm -> im"(sqrt_Msd_inv, M_mid, sqrt_Mds_inv) ≈ I(size(M_mid, 1))
+    # @show ein"ji, jl, lm -> im"(sqrt_Msd_inv, M_mid, sqrt_Mds_inv) ≈ I(size(M_mid, 1))
 
     res = svd(M_mid)
     U = res.U # jn
     S = diagm(res.S) # no
     Vt = res.Vt # ol
 
-    @show ein"jn, no, ol -> jl"(U, S, Vt) ≈ M_mid
-    @show maximum(abs.(ein"ji, jn, no, ol, lm -> im"(sqrt_Msd_inv, U, S, Vt, sqrt_Mds_inv) - I(size(M_mid, 1))))
+    # @show ein"jn, no, ol -> jl"(U, S, Vt) ≈ M_mid
+    # @show maximum(abs.(ein"ji, jn, no, ol, lm -> im"(sqrt_Msd_inv, U, S, Vt, sqrt_Mds_inv) - I(size(M_mid, 1))))
 
     As = ein"ji, jn -> in"(sqrt_Msd_inv, U)
     Ad = ein"lm, ol -> mo"(sqrt_Mds_inv, Vt)
 
-    @show maximum(abs.(ein"in, no, mo -> im"(As, S, Ad) - I(size(As, 1))))
+    # @show maximum(abs.(ein"in, no, mo -> im"(As, S, Ad) - I(size(As, 1))))
 
     #update the gauge tensor
     ansatz.gauge_tensors[ansatz.gauge_tensors_map[(s, d)]] .= S
