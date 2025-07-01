@@ -2,7 +2,6 @@ module BPGauge
 
 using LinearAlgebra, Graphs, Random
 using OMEinsum
-using Yao
 
 export TensorNetworkAnsatz
 export BPState, BPPath, BPStep
