@@ -36,7 +36,7 @@ end
     add_edge!(g, 2, 3)
     add_edge!(g, 3, 4)
     add_edge!(g, 4, 5)
-    tn = random_state(g, d_virtual = 8)
+    tn = random_state(g, d_virtual = 10)
     normalize_state!(tn)
     origin_34 = ein"ijkm, kln -> ijmnl"(tn.site_tensors[3], tn.site_tensors[4])
 
