@@ -51,7 +51,7 @@ end
 
     T3 = rand(3, 4, 5, 2)
     T4 = rand(5, 6, 2)
-    G = rand(5, 5)
+    G = diagm(rand(5))
 
     @test eincode_s(T3, G) ≈ eincode_s_man(T3, G)
     @test eincode_d(T4, G) ≈ eincode_d_man(T4, G)
