@@ -33,7 +33,7 @@ end
     end
 
     g = chain(10)
-    for d in [2, 3]
+    for d in [2, 3, 10]
         tn = random_state(g, d_virtual = 3)
         normalize_state!(tn)
         bp_state = BPState(tn)
@@ -64,7 +64,7 @@ end
     add_edge!(g, 3, 5)
     add_edge!(g, 3, 6)
 
-    for d in [2, 3]
+    for d in [2, 3, 10]
         tn = random_state(g, d_virtual = d)
         normalize_state!(tn)
         bp_state = BPState(tn)

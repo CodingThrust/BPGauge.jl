@@ -11,6 +11,7 @@ export BPState, BPPath, BPStep
 export zero_state, random_state, inner_product, normalize_state!
 export bp!, bp_update!
 export absorb!
+export apply_gauge!, gauge!
 
 include("utils.jl")
 

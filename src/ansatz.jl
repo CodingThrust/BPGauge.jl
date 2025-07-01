@@ -57,7 +57,7 @@ function inner_product(bra::TensorNetworkAnsatz{TA, TB}, ket::TensorNetworkAnsat
     size_dict = OMEinsum.get_size_dict!(ixs, xs, Dict{Int, Int}())
 
     opt_code = optimize_code(raw_code, size_dict, optimizer)
-    # @info "contraction complexity: $(contraction_complexity(opt_code, size_dict))"
+    @info "contraction complexity: $(contraction_complexity(opt_code, size_dict))"
 
     res = opt_code(xs...)
     return res[]

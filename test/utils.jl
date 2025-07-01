@@ -38,6 +38,25 @@ end
     @test M2_generated ≈ M2_manul
 end
 
+@testset "absorb_eins" begin
+    g = SimpleGraph(5)
+    add_edge!(g, 1, 3)
+    add_edge!(g, 2, 3)
+    add_edge!(g, 3, 4)
+    add_edge!(g, 4, 5)
+    s,d = 3, 4
+    eincode_s, eincode_d = BPGauge.absorb_eins(s, d, neighbors(g, s), neighbors(g, d))
+    eincode_s_man = ein"ijkm, ko -> ijom"
+    eincode_d_man = ein"kln, ok -> oln"
+
+    T3 = rand(3, 4, 5, 2)
+    T4 = rand(5, 6, 2)
+    G = rand(5, 5)
+
+    @test eincode_s(T3, G) ≈ eincode_s_man(T3, G)
+    @test eincode_d(T4, G) ≈ eincode_d_man(T4, G)
+end
+
 @testset "square_root" begin
     # generate a random positive definite matrix
     A = rand(ComplexF64, 10, 10)
