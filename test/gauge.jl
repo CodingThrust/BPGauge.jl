@@ -2,6 +2,8 @@ using BPGauge
 using Graphs, LinearAlgebra, OMEinsum
 using Test
 
+using BPGauge: square_root
+
 @testset "absorb" begin
     for g in [random_regular_graph(30, 3), BPGauge.square_lattice(10, 10, 0.8)]
         tn = random_state(g, d_virtual = 2)
@@ -62,4 +64,43 @@ end
 
     gauge!(tn, bp_state)
     @test inner_product(tn, adjoint(tn)) ≈ 1.0
+end
+
+@testset "guage mps" begin
+    g = chain(100)
+    tn = random_state(g, d_virtual = 8)
+    normalize_state!(tn)
+    
+    bp_state = BPState(tn)
+    bp_path = BPPath(tn)
+    bp!(bp_state, bp_path, tn, verbose = true, err_bound = 1e-14)
+
+    gauge!(tn, bp_state)
+
+    for i in 1:nv(g) - 2
+        G = tn.gauge_tensors[tn.gauge_tensors_map[(i, i + 1)]]
+        T = tn.site_tensors[i + 1]
+        L = ein"ij, jk, jln, kmn -> lm"(G, G, T, conj(T))
+        @show i, maximum(abs.(L ./ L[1, 1] - I(size(L, 1))))
+    end
+end
+
+
+@testset "Vidal gauge" begin
+    g = chain(100)
+    tn = random_state(g, d_virtual = 8)
+    normalize_state!(tn)
+    
+    bp_state = BPState(tn)
+    bp_path = BPPath(tn)
+    bp!(bp_state, bp_path, tn, err_bound = 1e-14)
+
+    gauge!(tn, bp_state)
+
+    for i in 2:nv(g) - 2
+        G = tn.gauge_tensors[tn.gauge_tensors_map[(i, i + 1)]]
+        T = tn.site_tensors[i + 1]
+        L = ein"ij, jk, jln, kmn -> lm"(G, G, T, conj(T))
+        @test maximum(abs.(L ./ L[1, 1] - I(size(L, 1)))) < 1e-6
+    end
 end

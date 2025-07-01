@@ -11,6 +11,8 @@ export bp!, bp_update!
 export absorb!
 export apply_gauge!, gauge!
 
+export chain, square_lattice
+
 include("utils.jl")
 
 # define and construct the network
@@ -19,7 +21,10 @@ include("ansatz.jl")
 # bp on the tensor network ansatz
 include("bp.jl")
 
-# operations about gauging``
+# operations about gauging
 include("gauge.jl")
+
+# simple update
+include("su.jl")
 
 end

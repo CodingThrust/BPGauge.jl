@@ -20,6 +20,14 @@ function square_lattice(mx::Int, my::Int, p::Float64; seed::Int = 1234)
     return g
 end
 
+function chain(n::Int)
+    g = SimpleGraph(n)
+    for i in 1:n-1
+        add_edge!(g, i, i+1)
+    end
+    return g
+end
+
 # codes about constructing the einsum expression
 
 function all_eins(g::SimpleGraph{Int}, count::Int)

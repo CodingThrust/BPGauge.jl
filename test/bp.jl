@@ -24,14 +24,6 @@ using Test
 end
 
 @testset "1d chain" begin
-    function chain(n::Int)
-        g = SimpleGraph(n)
-        for i in 1:n - 1
-            add_edge!(g, i, i + 1)
-        end
-        return g
-    end
-
     g = chain(10)
     for d in [2, 3, 10]
         tn = random_state(g, d_virtual = 3)
