@@ -86,8 +86,10 @@ end
     end
 end
 
-@testset "graph gauge" begin
-    g = random_regular_graph(30, 3)
+@testset "cycle graph gauge" begin
+    g = chain(100)
+    add_edge!(g, 1, 100)
+
     tn = random_state(g, d_virtual = 4)
     normalize_state!(tn)
     @test inner_product(tn, adjoint(tn)) ≈ 1.0
@@ -98,4 +100,12 @@ end
 
     gauge!(tn, bp_state)
     @test inner_product(tn, adjoint(tn)) ≈ 1.0
+
+    for i in 1:nv(g) - 2
+        j = i == nv(g) ? 1 : i + 1
+        G = tn.gauge_tensors[tn.gauge_tensors_map[(min(i, j), max(i, j))]]
+        T = tn.site_tensors[j]
+        L = ein"ij, jk, jln, kmn -> lm"(G, G, T, conj(T))
+        @test maximum(abs.(L ./ L[1, 1] - I(size(L, 1)))) < 2 * 1e-6
+    end
 end
