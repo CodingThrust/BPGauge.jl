@@ -85,3 +85,25 @@ function apply_gauge!(ansatz::TensorNetworkAnsatz{TA, TB}, s::Int, d::Int, M_sd:
 
     nothing
 end
+
+# check the distance from a gauged state to the vidal gauge
+function dist_to_vidal(tn::TensorNetworkAnsatz, bp_path::BPPath)
+    Ts = tn.site_tensors
+    Tcs = conj.(Ts)
+
+    err = 0.0
+    for step in bp_path.bp_steps
+        eincode = step.eincode
+        Tid = step.Tid
+        inputs = step.inputs
+        output = step.output
+
+        T = Ts[Tid]
+        Tc = Tcs[Tid]
+        Λs2 = [tn.gauge_tensors[tn.gauge_tensors_map[(min(i, j), max(i, j))]] for (i, j) in inputs].^2
+
+        output_tensor = eincode(T, Tc, Λs2...)
+        err = max(err, maximum(abs.(output_tensor - output_tensor[1, 1] * I(size(output_tensor, 1)))))
+    end
+    return err
+end

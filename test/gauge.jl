@@ -104,11 +104,21 @@ end
     gauge!(tn, bp_state)
     @test inner_product(tn, adjoint(tn)) ≈ 1.0
 
-    for i in 1:nv(g) - 2
-        j = i == nv(g) ? 1 : i + 1
-        G = tn.gauge_tensors[tn.gauge_tensors_map[(min(i, j), max(i, j))]]
-        T = tn.site_tensors[j]
-        L = ein"ij, jk, jln, kmn -> lm"(G, G, T, conj(T))
-        @test maximum(abs.(L ./ L[1, 1] - I(size(L, 1)))) < 2 * 1e-6
-    end
+    @test dist_to_vidal(tn, bp_path) < 1e-5
+end
+
+@testset "rr3 graph gauge" begin
+    g = random_regular_graph(20, 3)
+    tn = random_state(g, d_virtual = 4)
+    normalize_state!(tn)
+    @test inner_product(tn, adjoint(tn)) ≈ 1.0
+
+    bp_state = BPState(tn)
+    bp_path = BPPath(tn)
+    bp!(bp_state, bp_path, tn, atol = 1e-8)
+
+    gauge!(tn, bp_state)
+    @test inner_product(tn, adjoint(tn)) ≈ 1.0
+
+    @test dist_to_vidal(tn, bp_path) < 1e-5
 end

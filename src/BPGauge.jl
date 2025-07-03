@@ -12,6 +12,7 @@ export absorb!
 export apply_gauge!, gauge!
 
 export square_lattice
+export dist_to_vidal
 
 include("utils.jl")
 
