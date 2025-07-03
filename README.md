@@ -13,7 +13,7 @@ A simple example is to consider a cycle graph:
 ```julia
 using BPGauge, Graphs
 
-g = chain(100)
+g = path_graph(100)
 add_edge!(g, 1, 100)
 
 # generate a random state

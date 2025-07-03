@@ -2,33 +2,23 @@
 function square_lattice(mx::Int, my::Int, p::Float64; seed::Int = 1234)
     Random.seed!(seed)
     n = Int(ceil(mx * my * p))
-    g = SimpleGraph(n)
-    positions = [(i, j) for i in 1:mx, j in 1:my]
-    shuffle!(positions)
-    positions = positions[1:n]
-    sort!(positions)
-    for (i, pos) in enumerate(positions)
-        mxi, myi = pos
-        for (dx, dy) in [(0, 1), (1, 0)]
-            mxj, myj = mxi + dx, myi + dy
-            if (mxj, myj) in positions
-                j = findfirst(x -> x == (mxj, myj), positions)
-                add_edge!(g, i, j)
-            end
-        end
-    end
-    return g
-end
-
-function chain(n::Int)
-    g = SimpleGraph(n)
-    for i in 1:n-1
-        add_edge!(g, i, i+1)
-    end
-    return g
+    g = grid((mx, my))
+    selected_vertices = shuffle!(collect(vertices(g)))[1:n]
+    sub_g, _ = induced_subgraph(g, selected_vertices)
+    return sub_g
 end
 
 # codes about constructing the einsum expression
+function inner_product_eins(g::SimpleGraph{Int})
+    # 1:nv(g) are the indices of open indices
+    count = nv(g) + 1
+    ixs_bra, count = all_eins(g, count)
+    ixs_ket, count = all_eins(g, count)
+
+    ixs = vcat(ixs_bra, ixs_ket)
+
+    return EinCode(ixs, Int[])
+end
 
 function all_eins(g::SimpleGraph{Int}, count::Int)
     indices_dict = Dict{Tuple{Int, Int}, Int}()
@@ -98,8 +88,8 @@ function absorb_eins(s::Int, d::Int, nebis_s::Vector{Int}, nebis_d::Vector{Int})
 end
 
 # a very simple strategy to uniform the message tensor
-function uniform!(t::AbstractArray)
-    t ./= abs(sum(t))
+function normalize_message!(t::AbstractArray)
+    return normalize!(t, 1)
 end
 
 # square_root of the message matrix M_12 via eigen decomposition
@@ -117,13 +107,11 @@ function square_root(M::Matrix{Complex{T}}) where T
     # it seems that eigen decomposition some time leads to small negative values, fix them to 10 times the machine precision
     # see https://github.com/ITensor/ITensorNetworks.jl/blob/2d7db49c2f003c6588a1632fd6f0fd802c0ac9ca/src/gauging.jl#L70
     # this operation is extremely ill-conditioned, leading to huge drop of accuracy
-    for i in eachindex(D)
-        (abs(D[i]) < 10 * eps(T)) && (D[i] = 10 * eps(T))
-    end
+    D .= max.(D, 10 * eps(T))
 
     # need to consider the pseudoinverse if D contains 0
     sqrt_D = sqrt.(D)
     sqrt_M = U * diagm(sqrt_D)
-    sqrt_M_inv = diagm([!iszero(d) ? inv(d) : zero(typeof(d)) for d in sqrt_D]) * adjoint(U)
+    sqrt_M_inv = diagm(inv.(sqrt_D)) * adjoint(U)
     return sqrt_M, sqrt_M_inv
 end

@@ -11,7 +11,7 @@ export bp!, bp_update!
 export absorb!
 export apply_gauge!, gauge!
 
-export chain, square_lattice
+export square_lattice
 
 include("utils.jl")
 

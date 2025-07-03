@@ -23,8 +23,8 @@ using Test
     @test isnothing(bp!(bp_state, bp_path, tn))
 end
 
-@testset "1d chain" begin
-    g = chain(10)
+@testset "1d path_graph" begin
+    g = path_graph(10)
     for d in [2, 3, 10]
         tn = random_state(g, d_virtual = 3)
         normalize_state!(tn)

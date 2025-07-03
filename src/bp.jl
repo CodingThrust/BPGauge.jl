@@ -15,7 +15,7 @@ struct BPState{TA}
             for (i, src) in enumerate(neighbors(ansatz.g, dst))
                 d_virtual = size(ansatz.site_tensors[dst])[i]
                 messages[(src, dst)] = ones(TE, d_virtual, d_virtual)
-                uniform!(messages[(src, dst)])
+                normalize_message!(messages[(src, dst)])
             end
         end
 
@@ -23,16 +23,17 @@ struct BPState{TA}
     end
 end
 
+# a single bp update step: \sum_{T_neighbors} T * T* * M_inputs... -> M_output
 struct BPStep
     eincode::AbstractEinsum # Eincode([T..., T*..., M_inputs...], [M_output])
-    Tid::Int
-    inputs::Vector{Tuple{Int, Int}}
-    output::Tuple{Int, Int}
+    Tid::Int # the id of the tensor to interact with
+    inputs::Vector{Tuple{Int, Int}} # input messages 
+    output::Tuple{Int, Int} # output message
 end
 
 struct BPPath
-    bp_steps::Vector{BPStep}
-    function BPPath(ansatz::TensorNetworkAnsatz{TA, TB}; seed::Int = 1234) where {TA, TB}
+    bp_steps::Vector{BPStep} # steps of bp update, each step is a single bp update
+    function BPPath(ansatz::TensorNetworkAnsatz{TA, TB}; random_order::Bool = true, seed::Int = 1234) where {TA, TB}
         g = ansatz.g
         Random.seed!(seed)
         bp_steps = BPStep[]
@@ -42,7 +43,9 @@ struct BPPath
             push!(outputs, (src(e), dst(e)))
             push!(outputs, (dst(e), src(e)))
         end
-        shuffle!(outputs)
+
+        # the steps are taken in random order
+        random_order && shuffle!(outputs)
 
         for (s, d) in outputs
             inputs = Tuple{Int, Int}[]
@@ -61,13 +64,13 @@ struct BPPath
     end
 end
 
-function bp!(state::BPState, path::BPPath, ansatz::TensorNetworkAnsatz; max_iter::Int = 1000, err_bound::Float64 = 1e-6, damping::Float64 = 0.2, verbose::Bool = false)
+function bp!(state::BPState, path::BPPath, ansatz::TensorNetworkAnsatz; max_iter::Int = 1000, atol::Float64 = 1e-6, damping::Float64 = 0.2, verbose::Bool = false)
     Ts = ansatz.site_tensors
     Tcs = conj.(ansatz.site_tensors)
     for iter in 1:max_iter
         error = bp_update!(state, path, Ts, Tcs, damping)
         verbose && @info "BP iteration $iter, error: $error"
-        error < err_bound && break
+        error < atol && break
     end
     nothing
 end
@@ -87,7 +90,7 @@ function bp_update!(state::BPState, path::BPPath, Ts::Vector{TA}, Tcs::Vector{TB
         M_inputs = [state.messages[input] for input in inputs]
 
         # update the message tensor
-        new_message = uniform!(eincode(T, Tc, M_inputs...))
+        new_message = normalize_message!(eincode(T, Tc, M_inputs...))
         error = max(error, maximum(abs.(state.messages[output] - new_message)))
         state.messages[output] .*= damping
         state.messages[output] .+= (1 - damping) * new_message

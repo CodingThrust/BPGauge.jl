@@ -67,13 +67,13 @@ end
 end
 
 @testset "Vidal gauge mps" begin
-    g = chain(100)
+    g = path_graph(100)
     tn = random_state(g, d_virtual = 8)
     normalize_state!(tn)
     
     bp_state = BPState(tn)
     bp_path = BPPath(tn)
-    bp!(bp_state, bp_path, tn, err_bound = 1e-14)
+    bp!(bp_state, bp_path, tn, atol = 1e-14)
 
     gauge!(tn, bp_state)
     @test inner_product(tn, adjoint(tn)) ≈ 1.0
@@ -87,7 +87,7 @@ end
 end
 
 @testset "cycle graph gauge" begin
-    g = chain(100)
+    g = path_graph(100)
     add_edge!(g, 1, 100)
 
     tn = random_state(g, d_virtual = 4)
@@ -96,7 +96,7 @@ end
 
     bp_state = BPState(tn)
     bp_path = BPPath(tn)
-    bp!(bp_state, bp_path, tn, err_bound = 1e-8)
+    bp!(bp_state, bp_path, tn, atol = 1e-8)
 
     gauge!(tn, bp_state)
     @test inner_product(tn, adjoint(tn)) ≈ 1.0

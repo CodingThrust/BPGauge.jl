@@ -12,7 +12,7 @@ More complex geometry and property will reduce more the dimension of system by i
 
 $D=2^N \xrightarrow{\text{Constraint}} \alpha^N  \xrightarrow{\text{Particle Number}}\alpha^{N-1}/k\xrightarrow{\text{translation}}\alpha^{N-1}/kN\xrightarrow{\text{spin flip/inversion}}\alpha^{N-2}/kN$.
 
-where $\alpha \sim 1.618, 1.502$ for Fibonacci chain, hard core square lattice, $k \sim 5$. So for fully ED, $D \sim 10^6$. When doing dynamics, Krylov subspace $K_m​=\text{span}\{v,Hv,H^2v,⋯,H^{m−1}v\}$ is usually incorporated, which can scale up to $N=32$ even without anyon symmetry ($D \sim 10^{10}, m \sim 10^4$,  as long as the locality of interaction ensuring sparse matrix). In such basis, the Its complexity decreases to $O(m^2D)$
+where $\alpha \sim 1.618, 1.502$ for Fibonacci path_graph, hard core square lattice, $k \sim 5$. So for fully ED, $D \sim 10^6$. When doing dynamics, Krylov subspace $K_m​=\text{span}\{v,Hv,H^2v,⋯,H^{m−1}v\}$ is usually incorporated, which can scale up to $N=32$ even without anyon symmetry ($D \sim 10^{10}, m \sim 10^4$,  as long as the locality of interaction ensuring sparse matrix). In such basis, the Its complexity decreases to $O(m^2D)$
 
 
 ## *Tensor Networks, TN*
@@ -95,7 +95,7 @@ Supplemental Material](https://arxiv.org/pdf/1911.04882), which maybe helpful?
 <img width="872" alt="Image" src="https://github.com/user-attachments/assets/df2cf6ed-da28-4320-9f28-335b383a5cbb" />
 
 [^Leshouches]: Les houch notes for Exact Diagonalizaton. https://indico.ictp.it/event/a14246/session/31/contribution/51/material/0/0.pdf
-[^QMBSPRB]: Quantum scarred eigenstates in a Rydberg atom chain: Entanglement, breakdown of thermalization, and stability to perturbations. https://journals.aps.org/prb/pdf/10.1103/PhysRevB.98.155134
+[^QMBSPRB]: Quantum scarred eigenstates in a Rydberg atom path_graph: Entanglement, breakdown of thermalization, and stability to perturbations. https://journals.aps.org/prb/pdf/10.1103/PhysRevB.98.155134
 [^LauchliKagome]: S = 1/2 kagome Heisenberg antiferromagnet revisited https://journals.aps.org/prb/pdf/10.1103/PhysRevB.100.155142
 [^Dowling]: Monte Carlo techniques for real-time
 quantum dynamics https://arxiv.org/pdf/quant-ph/0507003
