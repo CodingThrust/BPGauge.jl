@@ -1,9 +1,7 @@
 # BPGauge
 
-<!-- [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://ArrogantGao.github.io/BPGauge.jl/stable/) -->
-<!-- [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://ArrogantGao.github.io/BPGauge.jl/dev/) -->
-<!-- [![Build Status](https://github.com/ArrogantGao/BPGauge.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/ArrogantGao/BPGauge.jl/actions/workflows/CI.yml?query=branch%3Amain) -->
-<!-- [![Coverage](https://codecov.io/gh/ArrogantGao/BPGauge.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/ArrogantGao/BPGauge.jl) -->
+[![Build Status](https://github.com/CodingThrust/BPGauge.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/CodingThrust/BPGauge.jl/actions/workflows/CI.yml?query=branch%3Amain)
+<!-- [![Coverage](https://codecov.io/gh/CodingThrust/BPGauge.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/CodingThrust/BPGauge.jl) -->
 
 ## Introduction
 
@@ -13,7 +11,7 @@ A simple example is to consider a cycle graph:
 ```julia
 using BPGauge, Graphs
 
-g = chain(100)
+g = path_graph(100)
 add_edge!(g, 1, 100)
 
 # generate a random state
@@ -23,7 +21,7 @@ normalize_state!(tn)
 # generate a BP state, and do BP until convergence
 bp_state = BPState(tn)
 bp_path = BPPath(tn)
-bp!(bp_state, bp_path, tn, err_bound = 1e-8)
+bp!(bp_state, bp_path, tn, atol = 1e-8)
 
 # gauge transform the state
 gauge!(tn, bp_state)
