@@ -2,6 +2,9 @@ using BPGauge
 using Graphs, LinearAlgebra, OMEinsum
 using Test
 
+using Random
+Random.seed!(1234)
+
 using BPGauge: square_root
 
 @testset "absorb" begin

@@ -21,7 +21,7 @@ normalize_state!(tn)
 # generate a BP state, and do BP until convergence
 bp_state = BPState(tn)
 bp_path = BPPath(tn)
-bp!(bp_state, bp_path, tn, err_bound = 1e-8)
+bp!(bp_state, bp_path, tn, atol = 1e-8)
 
 # gauge transform the state
 gauge!(tn, bp_state)

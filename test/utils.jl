@@ -2,6 +2,9 @@ using BPGauge
 using Graphs, LinearAlgebra, OMEinsum
 using Test
 
+using Random
+Random.seed!(1234)
+
 @testset "graphs" begin
     g = BPGauge.square_lattice(10, 10, 0.8)
     @test nv(g) == 80

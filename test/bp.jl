@@ -2,6 +2,9 @@ using BPGauge
 using Graphs, LinearAlgebra, OMEinsum
 using Test
 
+using Random
+Random.seed!(1234)
+
 @testset "bp" begin
     g = random_regular_graph(30, 3)
 
