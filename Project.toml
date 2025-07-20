@@ -12,7 +12,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 [compat]
 Graphs = "1.12.1"
 LinearAlgebra = "1.11.0"
-OMEinsum = "0.8.7"
+OMEinsum = "0.8.7, 0.9"
 Random = "1.11.0"
 julia = "1.6.7"
 
