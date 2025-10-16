@@ -5,7 +5,7 @@
 
 ## Introduction
 
-This package provides a gauge transformation for graph tensor network states.
+This package provides a gauge transformation for graph tensor network states, according to [Gauging tensor networks with belief propagation](https://scipost.org/SciPostPhys.15.6.222).
 
 A simple example is to consider a cycle graph:
 ```julia
